@@ -39,5 +39,13 @@ export function createServer() {
   app.put("/api/medical-records/:id", updateMedicalRecord);
   app.delete("/api/medical-records/:id", deleteMedicalRecord);
 
+  // Auth routes (MongoDB + JWT)
+  // Lazy import to avoid circulars at build time
+  import("./routes/auth").then(({ signup, login, me }) => {
+    app.post("/api/auth/signup", signup);
+    app.post("/api/auth/login", login);
+    app.get("/api/auth/me", me);
+  });
+
   return app;
 }
