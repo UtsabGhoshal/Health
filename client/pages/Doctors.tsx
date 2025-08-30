@@ -1,10 +1,22 @@
 import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Doctor, ApiResponse, PaginatedResponse } from "@shared/types";
 import {
@@ -20,22 +32,22 @@ import {
   Eye,
   Bone,
   Activity,
-  Loader2
+  Loader2,
 } from "lucide-react";
 
 const specialtyIcons: Record<string, any> = {
-  "Cardiology": Heart,
-  "Neurology": Brain,
-  "Pediatrics": Baby,
-  "Ophthalmology": Eye,
-  "Orthopedics": Bone,
+  Cardiology: Heart,
+  Neurology: Brain,
+  Pediatrics: Baby,
+  Ophthalmology: Eye,
+  Orthopedics: Bone,
   "General Medicine": Activity,
-  "Dermatology": Activity,
-  "Gynecology": Activity,
-  "Gastroenterology": Activity,
-  "Psychiatry": Brain,
-  "Pulmonology": Activity,
-  "Endocrinology": Activity,
+  Dermatology: Activity,
+  Gynecology: Activity,
+  Gastroenterology: Activity,
+  Psychiatry: Brain,
+  Pulmonology: Activity,
+  Endocrinology: Activity,
 };
 
 export default function Doctors() {
@@ -58,17 +70,23 @@ export default function Doctors() {
         limit: "10",
         sortBy,
         ...(searchTerm && { search: searchTerm }),
-        ...(selectedSpecialty !== "all" && { specialty: selectedSpecialty })
+        ...(selectedSpecialty !== "all" && { specialty: selectedSpecialty }),
       });
 
       const response = await fetch(`/api/doctors?${queryParams}`);
-      const data: ApiResponse<PaginatedResponse<Doctor>> = await response.json();
+      const raw = await response.text();
+      let data: ApiResponse<PaginatedResponse<Doctor>> | null = null;
+      try {
+        data = raw ? JSON.parse(raw) : null;
+      } catch {
+        data = null;
+      }
 
-      if (data.success && data.data) {
+      if (response.ok && data?.success && data.data) {
         setDoctors(data.data.data);
         setTotalPages(data.data.totalPages);
       } else {
-        setError(data.error || "Failed to fetch doctors");
+        setError(data?.error || raw || "Failed to fetch doctors");
       }
     } catch (err) {
       setError("Failed to fetch doctors");
@@ -82,9 +100,15 @@ export default function Doctors() {
   const fetchSpecialties = async () => {
     try {
       const response = await fetch("/api/doctors/specialties");
-      const data: ApiResponse<string[]> = await response.json();
+      const raw = await response.text();
+      let data: ApiResponse<string[]> | null = null;
+      try {
+        data = raw ? JSON.parse(raw) : null;
+      } catch {
+        data = null;
+      }
 
-      if (data.success && data.data) {
+      if (response.ok && data?.success && data.data) {
         setSpecialties(["all", ...data.data]);
       }
     } catch (err) {
@@ -142,17 +166,22 @@ export default function Doctors() {
             </div>
 
             {/* Specialty Filter */}
-            <Select value={selectedSpecialty} onValueChange={setSelectedSpecialty}>
+            <Select
+              value={selectedSpecialty}
+              onValueChange={setSelectedSpecialty}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select specialty" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Specialties</SelectItem>
-                {specialties.filter(s => s !== "all").map((specialty) => (
-                  <SelectItem key={specialty} value={specialty}>
-                    {specialty}
-                  </SelectItem>
-                ))}
+                {specialties
+                  .filter((s) => s !== "all")
+                  .map((specialty) => (
+                    <SelectItem key={specialty} value={specialty}>
+                      {specialty}
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
 
@@ -195,36 +224,48 @@ export default function Doctors() {
             {/* Results Count */}
             <div className="mb-6">
               <p className="text-gray-600">
-                Showing {doctors.length} doctors {searchTerm && `for "${searchTerm}"`}
+                Showing {doctors.length} doctors{" "}
+                {searchTerm && `for "${searchTerm}"`}
               </p>
             </div>
 
             {/* Doctor Cards */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
               {doctors.map((doctor) => {
-                const SpecialtyIcon = specialtyIcons[doctor.specialty] || Activity;
+                const SpecialtyIcon =
+                  specialtyIcons[doctor.specialty] || Activity;
                 return (
-                  <Card key={doctor.id} className="hover:shadow-xl transition-all duration-300 border-none shadow-lg">
+                  <Card
+                    key={doctor.id}
+                    className="hover:shadow-xl transition-all duration-300 border-none shadow-lg"
+                  >
                     <CardHeader className="pb-4">
                       <div className="flex items-start space-x-4">
                         <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-green-500 rounded-xl flex items-center justify-center text-white text-xl font-bold">
-                          {doctor.name.split(' ').map(n => n[0]).join('')}
+                          {doctor.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-start justify-between">
                             <div>
-                              <CardTitle className="text-xl mb-1">{doctor.name}</CardTitle>
+                              <CardTitle className="text-xl mb-1">
+                                {doctor.name}
+                              </CardTitle>
                               <CardDescription className="text-blue-600 font-medium flex items-center">
                                 <SpecialtyIcon className="w-4 h-4 mr-1" />
                                 {doctor.specialty}
                               </CardDescription>
-                              <p className="text-sm text-gray-500 mt-1">{doctor.specialization}</p>
+                              <p className="text-sm text-gray-500 mt-1">
+                                {doctor.specialization}
+                              </p>
                             </div>
-                            <Badge 
-                              variant="secondary" 
+                            <Badge
+                              variant="secondary"
                               className={`${
-                                doctor.availability.includes("Today") 
-                                  ? "bg-green-100 text-green-700 border-green-200" 
+                                doctor.availability.includes("Today")
+                                  ? "bg-green-100 text-green-700 border-green-200"
                                   : "bg-blue-100 text-blue-700 border-blue-200"
                               }`}
                             >
@@ -241,11 +282,15 @@ export default function Doctors() {
                         <div className="flex items-center space-x-1">
                           <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                           <span className="font-semibold">{doctor.rating}</span>
-                          <span className="text-gray-500">({doctor.reviews} reviews)</span>
+                          <span className="text-gray-500">
+                            ({doctor.reviews} reviews)
+                          </span>
                         </div>
                         <div className="flex items-center space-x-1 text-gray-500">
                           <Clock className="w-4 h-4" />
-                          <span className="text-sm">{doctor.experience} experience</span>
+                          <span className="text-sm">
+                            {doctor.experience} experience
+                          </span>
                         </div>
                       </div>
 
@@ -253,19 +298,28 @@ export default function Doctors() {
                       <div className="flex items-center space-x-1 text-gray-600">
                         <MapPin className="w-4 h-4" />
                         <span className="text-sm">{doctor.location}</span>
-                        <span className="text-sm">• {doctor.distance} away</span>
+                        <span className="text-sm">
+                          • {doctor.distance} away
+                        </span>
                       </div>
 
                       {/* Education and Languages */}
                       <div className="space-y-2">
                         <p className="text-sm text-gray-600">
-                          <span className="font-medium">Education:</span> {doctor.education}
+                          <span className="font-medium">Education:</span>{" "}
+                          {doctor.education}
                         </p>
                         <div className="flex items-center space-x-2">
-                          <span className="text-sm font-medium text-gray-600">Languages:</span>
+                          <span className="text-sm font-medium text-gray-600">
+                            Languages:
+                          </span>
                           <div className="flex flex-wrap gap-1">
                             {doctor.languages.map((lang) => (
-                              <Badge key={lang} variant="outline" className="text-xs">
+                              <Badge
+                                key={lang}
+                                variant="outline"
+                                className="text-xs"
+                              >
                                 {lang}
                               </Badge>
                             ))}
@@ -278,11 +332,15 @@ export default function Doctors() {
                         <div className="flex items-center space-x-4">
                           <div className="flex items-center space-x-1 text-green-600">
                             <Calendar className="w-4 h-4" />
-                            <span className="text-sm font-medium">Next: {doctor.nextSlot}</span>
+                            <span className="text-sm font-medium">
+                              Next: {doctor.nextSlot}
+                            </span>
                           </div>
-                          <span className="text-lg font-bold text-gray-900">{doctor.consultationFee}</span>
+                          <span className="text-lg font-bold text-gray-900">
+                            {doctor.consultationFee}
+                          </span>
                         </div>
-                        <Button 
+                        <Button
                           className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white"
                           onClick={() => handleBookAppointment(doctor.id)}
                         >
@@ -306,16 +364,18 @@ export default function Doctors() {
                   Previous
                 </Button>
                 <div className="flex items-center space-x-1">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <Button
-                      key={page}
-                      variant={currentPage === page ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setCurrentPage(page)}
-                    >
-                      {page}
-                    </Button>
-                  ))}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (page) => (
+                      <Button
+                        key={page}
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(page)}
+                      >
+                        {page}
+                      </Button>
+                    ),
+                  )}
                 </div>
                 <Button
                   variant="outline"
@@ -333,12 +393,15 @@ export default function Doctors() {
                 <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Search className="w-12 h-12 text-gray-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No doctors found</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  No doctors found
+                </h3>
                 <p className="text-gray-600 mb-4">
-                  Try adjusting your search criteria or browse all available doctors.
+                  Try adjusting your search criteria or browse all available
+                  doctors.
                 </p>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => {
                     setSearchTerm("");
                     setSelectedSpecialty("all");

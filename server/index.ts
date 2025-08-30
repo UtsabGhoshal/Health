@@ -2,9 +2,25 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
-import { getAllDoctors, getDoctorById, getDoctorSpecialties } from "./routes/doctors";
-import { getAppointments, createAppointment, updateAppointment, cancelAppointment } from "./routes/appointments";
-import { getMedicalRecords, createMedicalRecord, updateMedicalRecord, deleteMedicalRecord } from "./routes/medical-records";
+import {
+  getAllDoctors,
+  getDoctorById,
+  getDoctorSpecialties,
+} from "./routes/doctors";
+import {
+  getAppointments,
+  createAppointment,
+  updateAppointment,
+  cancelAppointment,
+} from "./routes/appointments";
+import {
+  getMedicalRecords,
+  createMedicalRecord,
+  updateMedicalRecord,
+  deleteMedicalRecord,
+} from "./routes/medical-records";
+import { signup, login, me } from "./routes/auth";
+import { ping, usersCount } from "./routes/db";
 
 export function createServer() {
   const app = express();
@@ -38,6 +54,15 @@ export function createServer() {
   app.post("/api/medical-records", createMedicalRecord);
   app.put("/api/medical-records/:id", updateMedicalRecord);
   app.delete("/api/medical-records/:id", deleteMedicalRecord);
+
+  // Auth routes (MongoDB + JWT)
+  app.post("/api/auth/signup", signup);
+  app.post("/api/auth/login", login);
+  app.get("/api/auth/me", me);
+
+  // DB diagnostics
+  app.get("/api/db/ping", ping);
+  app.get("/api/db/users/count", usersCount);
 
   return app;
 }
