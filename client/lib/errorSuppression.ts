@@ -26,9 +26,8 @@ export function suppressResizeObserverWarnings() {
   };
 
   // Handle unhandled promise rejections
-  const originalUnhandledRejection = window.onunhandledrejection;
-  window.onunhandledrejection = (event) => {
-    const reason = event.reason;
+  window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
+    const reason = (event as PromiseRejectionEvent).reason;
     if (
       reason instanceof Error &&
       reason.message?.includes('ResizeObserver loop')
@@ -36,11 +35,7 @@ export function suppressResizeObserverWarnings() {
       event.preventDefault();
       return;
     }
-
-    if (originalUnhandledRejection) {
-      originalUnhandledRejection(event);
-    }
-  };
+  });
 
   // Also handle unhandled errors
   const originalOnError = window.onerror;
