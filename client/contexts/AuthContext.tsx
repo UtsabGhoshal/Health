@@ -38,12 +38,24 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const fallbackAuthContext: AuthContextType = {
+  currentUser: null,
+  userData: null,
+  loading: true,
+  async login() {
+    throw new Error("Auth context not ready");
+  },
+  async signup() {
+    throw new Error("Auth context not ready");
+  },
+  async logout() {
+    throw new Error("Auth context not ready");
+  },
+};
+
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
+  return context ?? fallbackAuthContext;
 }
 
 interface AuthProviderProps {
