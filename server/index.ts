@@ -2,9 +2,23 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
-import { getAllDoctors, getDoctorById, getDoctorSpecialties } from "./routes/doctors";
-import { getAppointments, createAppointment, updateAppointment, cancelAppointment } from "./routes/appointments";
-import { getMedicalRecords, createMedicalRecord, updateMedicalRecord, deleteMedicalRecord } from "./routes/medical-records";
+import {
+  getAllDoctors,
+  getDoctorById,
+  getDoctorSpecialties,
+} from "./routes/doctors";
+import {
+  getAppointments,
+  createAppointment,
+  updateAppointment,
+  cancelAppointment,
+} from "./routes/appointments";
+import {
+  getMedicalRecords,
+  createMedicalRecord,
+  updateMedicalRecord,
+  deleteMedicalRecord,
+} from "./routes/medical-records";
 import { signup, login, me } from "./routes/auth";
 import { ping, usersCount } from "./routes/db";
 

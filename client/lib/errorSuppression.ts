@@ -9,15 +9,20 @@ export function suppressResizeObserverWarnings() {
 
     // Skip ResizeObserver loop warnings as they are harmless
     if (
-      typeof errorMessage === 'string' &&
-      (errorMessage.includes('ResizeObserver loop completed with undelivered notifications') ||
-       errorMessage.includes('ResizeObserver loop limit exceeded'))
+      typeof errorMessage === "string" &&
+      (errorMessage.includes(
+        "ResizeObserver loop completed with undelivered notifications",
+      ) ||
+        errorMessage.includes("ResizeObserver loop limit exceeded"))
     ) {
       return;
     }
 
     // Skip if it's an Error object with ResizeObserver message
-    if (errorMessage instanceof Error && errorMessage.message?.includes('ResizeObserver loop')) {
+    if (
+      errorMessage instanceof Error &&
+      errorMessage.message?.includes("ResizeObserver loop")
+    ) {
       return;
     }
 
@@ -26,23 +31,26 @@ export function suppressResizeObserverWarnings() {
   };
 
   // Handle unhandled promise rejections
-  window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
-    const reason = (event as PromiseRejectionEvent).reason;
-    if (
-      reason instanceof Error &&
-      reason.message?.includes('ResizeObserver loop')
-    ) {
-      event.preventDefault();
-      return;
-    }
-  });
+  window.addEventListener(
+    "unhandledrejection",
+    (event: PromiseRejectionEvent) => {
+      const reason = (event as PromiseRejectionEvent).reason;
+      if (
+        reason instanceof Error &&
+        reason.message?.includes("ResizeObserver loop")
+      ) {
+        event.preventDefault();
+        return;
+      }
+    },
+  );
 
   // Also handle unhandled errors
   const originalOnError = window.onerror;
   window.onerror = (message, source, lineno, colno, error) => {
     if (
-      typeof message === 'string' &&
-      message.includes('ResizeObserver loop')
+      typeof message === "string" &&
+      message.includes("ResizeObserver loop")
     ) {
       return true; // Prevent the error from being logged
     }
@@ -56,7 +64,7 @@ export function suppressResizeObserverWarnings() {
   };
 
   // Add a global ResizeObserver polyfill enhancement
-  if (typeof window.ResizeObserver !== 'undefined') {
+  if (typeof window.ResizeObserver !== "undefined") {
     const OriginalResizeObserver = window.ResizeObserver;
 
     window.ResizeObserver = class extends OriginalResizeObserver {
@@ -69,7 +77,10 @@ export function suppressResizeObserverWarnings() {
             });
           } catch (error) {
             // Silently catch ResizeObserver loop errors
-            if (!(error instanceof Error) || !error.message.includes('ResizeObserver')) {
+            if (
+              !(error instanceof Error) ||
+              !error.message.includes("ResizeObserver")
+            ) {
               throw error;
             }
           }
@@ -80,6 +91,6 @@ export function suppressResizeObserverWarnings() {
 }
 
 // Initialize error suppression when this module is imported
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   suppressResizeObserverWarnings();
 }

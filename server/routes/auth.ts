@@ -23,7 +23,9 @@ export const signup: RequestHandler = async (req, res) => {
 
     const existing = await User.findOne({ email: email.toLowerCase() });
     if (existing) {
-      return res.status(409).json({ message: "An account with this email already exists." });
+      return res
+        .status(409)
+        .json({ message: "An account with this email already exists." });
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
@@ -61,10 +63,16 @@ export const login: RequestHandler = async (req, res) => {
     }
 
     const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user) return res.status(404).json({ message: "No account found with this email address." });
+    if (!user)
+      return res
+        .status(404)
+        .json({ message: "No account found with this email address." });
 
     const valid = await bcrypt.compare(password, user.passwordHash);
-    if (!valid) return res.status(401).json({ message: "Incorrect password. Please try again." });
+    if (!valid)
+      return res
+        .status(401)
+        .json({ message: "Incorrect password. Please try again." });
 
     const token = signToken({ uid: user.id });
 

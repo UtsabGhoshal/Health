@@ -5,7 +5,9 @@ export interface ParsedResponse<T = any> {
   rawText: string;
 }
 
-export async function parseResponse<T = any>(res: Response): Promise<ParsedResponse<T>> {
+export async function parseResponse<T = any>(
+  res: Response,
+): Promise<ParsedResponse<T>> {
   const rawText = await res.text();
   let data: any = null;
   try {

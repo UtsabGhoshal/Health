@@ -1,6 +1,12 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Settings, AlertTriangle } from "lucide-react";
 
 interface FirebaseSetupGuideProps {
@@ -24,7 +30,8 @@ export default function FirebaseSetupGuide({ error }: FirebaseSetupGuideProps) {
           Firebase configuration required
         </CardTitle>
         <CardDescription className="text-orange-700">
-          Provide your Firebase Web App credentials and enable Authentication/Firestore.
+          Provide your Firebase Web App credentials and enable
+          Authentication/Firestore.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -33,15 +40,29 @@ export default function FirebaseSetupGuide({ error }: FirebaseSetupGuideProps) {
           <AlertTitle>Setup steps</AlertTitle>
           <AlertDescription className="mt-2">
             <ol className="list-decimal list-inside space-y-2 text-sm">
-              <li>In Firebase Console, create or open your project and add a Web app to get config.</li>
-              <li>Send the following env vars so we can set them securely: VITE_FIREBASE_API_KEY, VITE_FIREBASE_AUTH_DOMAIN, VITE_FIREBASE_PROJECT_ID, VITE_FIREBASE_STORAGE_BUCKET, VITE_FIREBASE_MESSAGING_SENDER_ID, VITE_FIREBASE_APP_ID, VITE_FIREBASE_MEASUREMENT_ID (optional).</li>
-              <li>Enable Email/Password under Authentication and create a Firestore database.</li>
+              <li>
+                In Firebase Console, create or open your project and add a Web
+                app to get config.
+              </li>
+              <li>
+                Send the following env vars so we can set them securely:
+                VITE_FIREBASE_API_KEY, VITE_FIREBASE_AUTH_DOMAIN,
+                VITE_FIREBASE_PROJECT_ID, VITE_FIREBASE_STORAGE_BUCKET,
+                VITE_FIREBASE_MESSAGING_SENDER_ID, VITE_FIREBASE_APP_ID,
+                VITE_FIREBASE_MEASUREMENT_ID (optional).
+              </li>
+              <li>
+                Enable Email/Password under Authentication and create a
+                Firestore database.
+              </li>
               <li>Refresh this page after saving changes.</li>
             </ol>
           </AlertDescription>
         </Alert>
         <div className="flex flex-col sm:flex-row gap-3">
-          <Button variant="outline" onClick={() => window.location.reload()}>Refresh Page</Button>
+          <Button variant="outline" onClick={() => window.location.reload()}>
+            Refresh Page
+          </Button>
         </div>
         <div className="text-sm text-orange-600">
           After configuring, login and signup will work normally.

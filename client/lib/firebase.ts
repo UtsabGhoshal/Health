@@ -22,7 +22,9 @@ const requiredKeys = [
   "VITE_FIREBASE_APP_ID",
 ] as const;
 
-export const missingFirebaseKeys = requiredKeys.filter((k) => !import.meta.env[k as keyof ImportMetaEnv]);
+export const missingFirebaseKeys = requiredKeys.filter(
+  (k) => !import.meta.env[k as keyof ImportMetaEnv],
+);
 let firebaseEnabled = missingFirebaseKeys.length === 0;
 
 let app: FirebaseApp | null = null;
