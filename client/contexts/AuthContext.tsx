@@ -51,7 +51,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   async function signup(email: string, password: string, displayName: string, role: UserRole) {
     if (!isFirebaseEnabled) {
-      throw new Error('Firebase is not configured. Please provide the VITE_FIREBASE_* environment variables.');
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, displayName, role })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to create account');
+      localStorage.setItem('auth_token', data.token);
+      setCurrentUser({} as any);
+      setUserData(data.user);
+      return;
     }
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
