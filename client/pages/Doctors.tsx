@@ -62,13 +62,15 @@ export default function Doctors() {
       });
 
       const response = await fetch(`/api/doctors?${queryParams}`);
-      const data: ApiResponse<PaginatedResponse<Doctor>> = await response.json();
+      const raw = await response.text();
+      let data: ApiResponse<PaginatedResponse<Doctor>> | null = null;
+      try { data = raw ? JSON.parse(raw) : null; } catch { data = null; }
 
-      if (data.success && data.data) {
+      if (response.ok && data?.success && data.data) {
         setDoctors(data.data.data);
         setTotalPages(data.data.totalPages);
       } else {
-        setError(data.error || "Failed to fetch doctors");
+        setError(data?.error || raw || "Failed to fetch doctors");
       }
     } catch (err) {
       setError("Failed to fetch doctors");
@@ -82,9 +84,11 @@ export default function Doctors() {
   const fetchSpecialties = async () => {
     try {
       const response = await fetch("/api/doctors/specialties");
-      const data: ApiResponse<string[]> = await response.json();
+      const raw = await response.text();
+      let data: ApiResponse<string[]> | null = null;
+      try { data = raw ? JSON.parse(raw) : null; } catch { data = null; }
 
-      if (data.success && data.data) {
+      if (response.ok && data?.success && data.data) {
         setSpecialties(["all", ...data.data]);
       }
     } catch (err) {
