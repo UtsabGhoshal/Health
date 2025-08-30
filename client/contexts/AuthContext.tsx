@@ -8,7 +8,7 @@ import {
   updateProfile
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
+import { auth, db, isFirebaseEnabled } from '@/lib/firebase';
 
 export type UserRole = 'patient' | 'doctor' | 'hospital';
 
@@ -50,6 +50,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [loading, setLoading] = useState(true);
 
   async function signup(email: string, password: string, displayName: string, role: UserRole) {
+    if (!isFirebaseEnabled) {
+      throw new Error('Firebase is not configured. Please provide the VITE_FIREBASE_* environment variables.');
+    }
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
@@ -98,6 +101,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   async function login(email: string, password: string) {
+    if (!isFirebaseEnabled) {
+      throw new Error('Firebase is not configured. Please provide the VITE_FIREBASE_* environment variables.');
+    }
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error: any) {
@@ -133,15 +139,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   async function logout() {
     setUserData(null);
+    if (!isFirebaseEnabled) return;
     await signOut(auth);
   }
 
   useEffect(() => {
+    if (!isFirebaseEnabled) {
+      setLoading(false);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
-      
+
       if (user) {
-        // Fetch user data from Firestore
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
           setUserData(userDoc.data() as UserData);
@@ -149,7 +160,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       } else {
         setUserData(null);
       }
-      
+
       setLoading(false);
     });
 
