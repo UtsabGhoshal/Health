@@ -6,6 +6,7 @@ import { getAllDoctors, getDoctorById, getDoctorSpecialties } from "./routes/doc
 import { getAppointments, createAppointment, updateAppointment, cancelAppointment } from "./routes/appointments";
 import { getMedicalRecords, createMedicalRecord, updateMedicalRecord, deleteMedicalRecord } from "./routes/medical-records";
 import { signup, login, me } from "./routes/auth";
+import { ping, usersCount } from "./routes/db";
 
 export function createServer() {
   const app = express();
