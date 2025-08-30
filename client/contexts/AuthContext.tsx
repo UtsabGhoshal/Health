@@ -159,13 +159,30 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   async function logout() {
     setUserData(null);
-    if (!isFirebaseEnabled) return;
+    if (!isFirebaseEnabled) {
+      localStorage.removeItem('auth_token');
+      return;
+    }
     await signOut(auth);
   }
 
   useEffect(() => {
     if (!isFirebaseEnabled) {
-      setLoading(false);
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+      fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+        .then(async (res) => {
+          const data = await res.json();
+          if (res.ok) {
+            setUserData(data.user as UserData);
+          } else {
+            localStorage.removeItem('auth_token');
+          }
+        })
+        .finally(() => setLoading(false));
       return;
     }
 
