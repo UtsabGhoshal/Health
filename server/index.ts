@@ -47,10 +47,8 @@ export function createServer() {
   app.get("/api/auth/me", me);
 
   // DB diagnostics
-  import("./routes/db").then(({ ping, usersCount }) => {
-    app.get("/api/db/ping", ping);
-    app.get("/api/db/users/count", usersCount);
-  });
+  app.get("/api/db/ping", ping);
+  app.get("/api/db/users/count", usersCount);
 
   return app;
 }
