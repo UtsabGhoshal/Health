@@ -112,7 +112,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   async function login(email: string, password: string) {
     if (!isFirebaseEnabled) {
-      throw new Error('Firebase is not configured. Please provide the VITE_FIREBASE_* environment variables.');
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to sign in');
+      localStorage.setItem('auth_token', data.token);
+      setCurrentUser({} as any);
+      setUserData(data.user);
+      return;
     }
     try {
       await signInWithEmailAndPassword(auth, email, password);
