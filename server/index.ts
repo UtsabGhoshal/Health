@@ -5,6 +5,7 @@ import { handleDemo } from "./routes/demo";
 import { getAllDoctors, getDoctorById, getDoctorSpecialties } from "./routes/doctors";
 import { getAppointments, createAppointment, updateAppointment, cancelAppointment } from "./routes/appointments";
 import { getMedicalRecords, createMedicalRecord, updateMedicalRecord, deleteMedicalRecord } from "./routes/medical-records";
+import { signup, login, me } from "./routes/auth";
 
 export function createServer() {
   const app = express();
@@ -40,12 +41,9 @@ export function createServer() {
   app.delete("/api/medical-records/:id", deleteMedicalRecord);
 
   // Auth routes (MongoDB + JWT)
-  // Lazy import to avoid circulars at build time
-  import("./routes/auth").then(({ signup, login, me }) => {
-    app.post("/api/auth/signup", signup);
-    app.post("/api/auth/login", login);
-    app.get("/api/auth/me", me);
-  });
+  app.post("/api/auth/signup", signup);
+  app.post("/api/auth/login", login);
+  app.get("/api/auth/me", me);
 
   return app;
 }
