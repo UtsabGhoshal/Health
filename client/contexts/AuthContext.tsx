@@ -9,6 +9,7 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db, isFirebaseEnabled } from '@/lib/firebase';
+import { parseResponse } from '@/lib/http';
 
 export type UserRole = 'patient' | 'doctor' | 'hospital';
 
@@ -56,11 +57,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, displayName, role })
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Failed to create account');
-      localStorage.setItem('auth_token', data.token);
+      const parsed = await parseResponse(res);
+      if (!parsed.ok) throw new Error((parsed.data as any)?.message || parsed.rawText || 'Failed to create account');
+      localStorage.setItem('auth_token', (parsed.data as any).token);
       setCurrentUser({} as any);
-      setUserData(data.user);
+      setUserData((parsed.data as any).user);
       return;
     }
     try {
@@ -117,11 +118,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Failed to sign in');
-      localStorage.setItem('auth_token', data.token);
+      const parsed = await parseResponse(res);
+      if (!parsed.ok) throw new Error((parsed.data as any)?.message || parsed.rawText || 'Failed to sign in');
+      localStorage.setItem('auth_token', (parsed.data as any).token);
       setCurrentUser({} as any);
-      setUserData(data.user);
+      setUserData((parsed.data as any).user);
       return;
     }
     try {
@@ -174,10 +175,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return;
       }
       fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
-        .then(async (res) => {
-          const data = await res.json();
-          if (res.ok) {
-            setUserData(data.user as UserData);
+        .then((res) => parseResponse(res))
+        .then((parsed) => {
+          if (parsed.ok) {
+            setUserData((parsed.data as any).user as UserData);
           } else {
             localStorage.removeItem('auth_token');
           }
