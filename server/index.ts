@@ -1,24 +1,14 @@
-import "dotenv/config";
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import cors from "cors";
+import { connectDB } from "./db";   // 👈 import connectDB
+
 import { handleDemo } from "./routes/demo";
-import {
-  getAllDoctors,
-  getDoctorById,
-  getDoctorSpecialties,
-} from "./routes/doctors";
-import {
-  getAppointments,
-  createAppointment,
-  updateAppointment,
-  cancelAppointment,
-} from "./routes/appointments";
-import {
-  getMedicalRecords,
-  createMedicalRecord,
-  updateMedicalRecord,
-  deleteMedicalRecord,
-} from "./routes/medical-records";
+import { getAllDoctors, getDoctorById, getDoctorSpecialties } from "./routes/doctors";
+import { getAppointments, createAppointment, updateAppointment, cancelAppointment } from "./routes/appointments";
+import { getMedicalRecords, createMedicalRecord, updateMedicalRecord, deleteMedicalRecord } from "./routes/medical-records";
 import { signup, login, me } from "./routes/auth";
 import { ping, usersCount } from "./routes/db";
 
@@ -29,6 +19,11 @@ export function createServer() {
   app.use(cors());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+
+  // ✅ Connect to MongoDB
+  connectDB(process.env.MONGODB_URI!)
+    .then(() => console.log("✅ MongoDB connected"))
+    .catch((err) => console.error("❌ MongoDB connection error:", err));
 
   // Example API routes
   app.get("/api/ping", (_req, res) => {
@@ -55,7 +50,7 @@ export function createServer() {
   app.put("/api/medical-records/:id", updateMedicalRecord);
   app.delete("/api/medical-records/:id", deleteMedicalRecord);
 
-  // Auth routes (MongoDB + JWT)
+  // Auth routes
   app.post("/api/auth/signup", signup);
   app.post("/api/auth/login", login);
   app.get("/api/auth/me", me);
